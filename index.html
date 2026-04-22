@@ -84,5 +84,39 @@
             }
         });
     </script>
+<style>
+    /* 1. 引入你的本地字体文件 */
+    @font-face {
+        font-family: 'DominoCustom'; 
+        /* 这里的 url 必须和你的文件名一模一样，包括大小写和后缀 */
+        /* 如果你的后缀是 .otf 就写 .otf */
+        src: url('DominoMono-BoldC.otf') format('opentype');
+        font-weight: normal;
+        font-style: normal;
+    }
+
+    * { touch-action: none; } 
+
+    body {
+        margin: 0;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #050505;
+        overflow: hidden;
+    }
+
+    #text {
+        /* 2. 在这里应用上面定义的字体名 */
+        font-family: 'DominoCustom', monospace; 
+        color: #ffffff;
+        font-size: 3rem;
+        will-change: transform;
+        transition: transform 0.1s ease-out, opacity 0.1s ease-out;
+        text-align: center;
+        user-select: none;
+    }
+</style>
 </body>
 </html>
