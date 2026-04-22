@@ -1,11 +1,88 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Take a closer look</title>
+    <style>
+        * { touch-action: none; } /* 禁用浏览器默认手势 */
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #050505;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        #text {
+            color: #ffffff;
+            font-size: 3rem;
+            font-weight: 300;
+            letter-spacing: 2px;
+            will-change: transform; /* 优化性能 */
+            transition: transform 0.1s ease-out, opacity 0.1s ease-out;
+            text-align: center;
+            user-select: none;
+        }
+    </style>
 </head>
 <body>
+
     <div id="text">Take a closer look</div>
+
+    <script>
+        const text = document.getElementById('text');
+        let initialDistance = 0; // 初始双指距离
+        let currentScale = 1;    // 当前文字缩放比例
+        let lastScale = 1;       // 上一次缩放结束后的比例
+
+        // 计算两点间距离的函数
+        function getDistance(touches) {
+            const dx = touches[0].clientX - touches[1].clientX;
+            const dy = touches[0].clientY - touches[1].clientY;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
+
+        document.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 2) {
+                initialDistance = getDistance(e.touches);
+            }
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            if (e.touches.length === 2 && initialDistance > 0) {
+                e.preventDefault(); // 阻止滚动
+
+                const newDistance = getDistance(e.touches);
+                
+                // 计算用户手指扩张的倍数
+                // zoomFactor > 1 表示手指在张开 (Zoom In)
+                const zoomFactor = newDistance / initialDistance;
+
+                // --- 核心悖论逻辑 ---
+                // 我们取倒数：手指张开越多(zoomFactor变大)，文字缩放值(newScale)越小
+                let newScale = lastScale * (1 / zoomFactor);
+
+                // 限制一下最小缩放，别完全消失了，除非你想让它消失
+                newScale = Math.max(0.05, Math.min(newScale, 2)); 
+
+                currentScale = newScale;
+                
+                // 应用变换：缩小文字，同时可以增加一点点模糊或透明度变化
+                text.style.transform = `scale(${currentScale})`;
+                text.style.opacity = Math.max(0.2, currentScale); 
+            }
+        }, { passive: false });
+
+        document.addEventListener('touchend', (e) => {
+            if (e.touches.length < 2) {
+                lastScale = currentScale; // 记录当前缩放，下次在此基础上继续
+                initialDistance = 0;
+            }
+        });
+    </script>
 </body>
 </html>
