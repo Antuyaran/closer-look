@@ -5,15 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Inquiry Demo</title>
     <style>
-        /* 1. 字体定义 */
+        /* 1. 字体定义：同时引入 BoldA 和 BoldC */
         @font-face {
-            font-family: 'DominoCustom';
+            font-family: 'DominoA';
+            src: url('DominoMono-BoldA.otf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'DominoC';
             src: url('DominoMono-BoldC.otf') format('opentype');
             font-weight: normal;
             font-style: normal;
         }
 
-        /* 2. 基础重置与极简风格 */
+        /* 基础字体类 */
+        .font-a { font-family: 'DominoA', monospace; }
+        .font-c { font-family: 'DominoC', monospace; }
+
+        /* 2. 基础重置 */
         * {
             margin: 0;
             padding: 0;
@@ -25,42 +35,58 @@
         body {
             width: 100vw;
             height: 100vh;
-            background-color: #0a0a0a; /* 极深灰，接近黑 */
+            background-color: #FFFFFF; /* 全局背景白色 */
             overflow: hidden;
-            font-family: 'DominoCustom', monospace;
-            color: #ffffff;
         }
 
-        /* 界面容器公用属性 */
+        /* 界面容器公用属性：取消了原本的透明度淡出过渡，改为硬切 */
         .screen {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            display: flex;
+            display: none; /* 默认隐藏 */
             align-items: center;
             justify-content: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.8s ease-in-out;
         }
 
         .screen.active {
-            opacity: 1;
-            pointer-events: auto;
+            display: flex; /* 激活时瞬间显示 */
         }
+
+        /* 底部固定信息栏：全局统一格式 */
+        .footer {
+            position: absolute;
+            bottom: 30px;
+            left: 0;
+            width: 100%;
+            padding: 0 30px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr; /* 左中右三等分 */
+            font-family: 'PingFangSC-Semibold', 'PingFang SC', -apple-system, sans-serif;
+            font-size: 20px;
+            font-weight: 600;
+            z-index: 10;
+            pointer-events: none; /* 防止遮挡交互手势 */
+        }
+        .footer .left { text-align: left; }
+        .footer .center { text-align: center; }
+        .footer .right { text-align: right; }
 
         /* ================= 界面 1 样式 ================= */
         
-        /* 辅助网格层：画十字参考线 */
-        .grid-bg {
+        #screen-1 {
+            color: #6AA3E6; /* 界面 1 统一文字颜色 */
+        }
+
+        #grid-1 {
             position: absolute;
             top: -50%; left: -50%;
-            width: 200%; height: 200%; /* 足够大以便缩放 */
+            width: 200%; height: 200%;
             background-image: 
-                linear-gradient(to right, #2a2a2a 1px, transparent 1px),
-                linear-gradient(to bottom, #2a2a2a 1px, transparent 1px);
+                linear-gradient(to right, #F2F2F2 1px, transparent 1px),
+                linear-gradient(to bottom, #F2F2F2 1px, transparent 1px);
             background-size: 40px 40px;
             background-position: center center;
             transform-origin: center center;
@@ -71,25 +97,41 @@
         #text-1 {
             position: relative;
             z-index: 2;
-            font-size: 2rem;
-            letter-spacing: 2px;
+            font-size: 2.5rem;
             text-align: center;
-            will-change: transform, opacity;
+            line-height: 1.3; /* 行距为字号的1.3倍 */
+            will-change: transform;
             transform-origin: center center;
         }
 
         /* ================= 界面 2 样式 ================= */
         
+        #screen-2 {
+            color: #FEA28F; /* 界面 2 统一文字颜色 */
+        }
+
+        #grid-2 {
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background-image: 
+                linear-gradient(to right, #DAECED 1px, transparent 1px),
+                linear-gradient(to bottom, #DAECED 1px, transparent 1px);
+            background-size: 40px 40px;
+            background-position: center center;
+            z-index: 1;
+        }
+
         #text-2 {
+            position: relative;
+            z-index: 2;
             font-size: 3rem;
-            letter-spacing: 4px;
             text-align: center;
             will-change: transform;
             transform-origin: top center; /* 拉伸从顶部开始固定 */
-            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); /* 松手时的回弹动画 */
+            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
         
-        /* 当手指触摸时，移除过渡动画以保证跟手 */
         #text-2.dragging {
             transition: none;
         }
@@ -99,14 +141,34 @@
 <body>
 
     <!-- 界面 1 -->
-    <div id="screen-1" class="screen active">
-        <div class="grid-bg" id="grid"></div>
-        <div id="text-1">TAKE A CLOSER LOOK</div>
+    <div id="screen-1" class="screen active font-a">
+        <div id="grid-1"></div>
+        <div id="text-1">
+            T<span class="font-c">A</span>KE<br>
+            <span class="font-c">A</span><br>
+            CL<span class="font-c">O</span>SER<br>
+            L<span class="font-c">OO</span>K
+        </div>
+        <!-- 界面1的底部信息 -->
+        <div class="footer">
+            <span class="left">Test</span>
+            <span class="center">Project Name</span>
+            <span class="right">01</span>
+        </div>
     </div>
 
     <!-- 界面 2 -->
-    <div id="screen-2" class="screen">
-        <div id="text-2">GO DOWN</div>
+    <div id="screen-2" class="screen font-a">
+        <div id="grid-2"></div>
+        <div id="text-2">
+            G<span class="font-c">O</span> D<span class="font-c">O</span>WN
+        </div>
+        <!-- 界面2的底部信息 -->
+        <div class="footer">
+            <span class="left">Test</span>
+            <span class="center">Project Name</span>
+            <span class="right">02</span>
+        </div>
     </div>
 
     <script>
@@ -115,13 +177,13 @@
 
         // === 界面 1：双指缩放逻辑 ===
         const screen1 = document.getElementById('screen-1');
-        const grid = document.getElementById('grid');
+        const grid1 = document.getElementById('grid-1');
         const text1 = document.getElementById('text-1');
         
         let initialDistance = 0;
         let currentGridScale = 1;
         let currentTextScale = 1;
-        const TEXT_SUCCESS_THRESHOLD = 4.5; // 文字放大到多少倍算完成
+        const TEXT_SUCCESS_THRESHOLD = 3.5; // 文字放大到多少倍算完成 (可根据手机屏幕微调)
 
         function getDistance(touches) {
             const dx = touches[0].clientX - touches[1].clientX;
@@ -144,19 +206,17 @@
                 const delta = currentDist / initialDistance;
 
                 if (delta > 1) {
-                    // 【Pinch Out】双指向外（常规放大）：文字不变，网格放大（靠近）
+                    // 【向外捏合】文字不变，网格放大
                     currentGridScale = delta;
-                    grid.style.transform = `scale(${currentGridScale})`;
-                    // 文字保持比例 1
+                    grid1.style.transform = `scale(${currentGridScale})`;
                     text1.style.transform = `scale(${currentTextScale})`;
                 } else if (delta < 1) {
-                    // 【Pinch In】双指向内（常规缩小）：网格不变，文字放大
-                    // delta 越小，倒数越大
+                    // 【向内捏合】网格不变，文字放大
                     currentTextScale = Math.max(1, 1 / delta); 
                     text1.style.transform = `scale(${currentTextScale})`;
-                    grid.style.transform = `scale(${currentGridScale})`;
+                    grid1.style.transform = `scale(${currentGridScale})`;
 
-                    // 检查是否达到阈值，触发界面切换
+                    // 达到阈值，瞬间硬切到界面 2
                     if (currentTextScale > TEXT_SUCCESS_THRESHOLD) {
                         transitionToScreen2();
                     }
@@ -166,26 +226,19 @@
 
         document.addEventListener('touchend', (e) => {
             if (currentScreen === 1 && e.touches.length < 2) {
-                initialDistance = 0; // 重置初始距离
-                // 这里我们不保留进度，松手就停在当前状态，或者你可以加入自动回弹
+                initialDistance = 0; 
             }
         });
 
-        // === 界面切换逻辑 ===
+        // === 瞬间切换界面的逻辑 ===
         function transitionToScreen2() {
             currentScreen = 2; // 锁定状态，防止重复触发
             
-            // 文字淡出
-            text1.style.transition = "opacity 0.5s, transform 0.5s";
-            text1.style.opacity = "0";
-            text1.style.transform = `scale(${currentTextScale * 1.5})`; // 伴随淡出再放大一点点
-
-            setTimeout(() => {
-                screen1.classList.remove('active');
-                document.getElementById('screen-2').classList.add('active');
-            }, 800);
+            // 移除原本的淡出，直接切换 active 状态
+            // 这会导致网格颜色、字体颜色瞬间改变，视觉冲击力更强
+            screen1.classList.remove('active');
+            document.getElementById('screen-2').classList.add('active');
         }
-
 
         // === 界面 2：单指滑动逻辑 ===
         const text2 = document.getElementById('text-2');
@@ -195,7 +248,7 @@
         document.addEventListener('touchstart', (e) => {
             if (currentScreen === 2 && e.touches.length === 1) {
                 startY = e.touches[0].clientY;
-                text2.classList.add('dragging'); // 移除动画，让拉伸完全跟手
+                text2.classList.add('dragging'); 
             }
         });
 
@@ -207,31 +260,27 @@
             const deltaY = currentY - startY;
 
             if (deltaY > 0) {
-                // 【向下滑动】（常规看上面内容）：文字拉长
-                // deltaY 是向下的像素值，除以一个系数作为拉伸倍数
+                // 【向下滑动】文字物理拉长
                 const stretchFactor = 1 + (deltaY / 150); 
                 text2.style.transform = `scaleY(${stretchFactor})`;
             } else {
-                // 【向上滑动】（常规看下面内容）：文字被推走
-                currentTranslateY = deltaY; // deltaY 是负数
+                // 【向上滑动】推走文字
+                currentTranslateY = deltaY; 
                 text2.style.transform = `translateY(${currentTranslateY}px)`;
 
-                // 如果推得足够高（比如超过屏幕高度一半），视为完成
                 if (Math.abs(currentTranslateY) > window.innerHeight / 2) {
+                    text2.style.transition = "opacity 0.2s";
                     text2.style.opacity = 0;
-                    text2.style.transition = "opacity 0.5s, transform 0.5s";
-                    // 这里可以继续写 transitionToScreen3 的逻辑
-                    setTimeout(() => alert("Demo Complete! 所有的交互习惯都被打破了。"), 500);
-                    currentScreen = 3; // 结束响应
+                    currentScreen = 3; 
                 }
             }
         }, { passive: false });
 
         document.addEventListener('touchend', (e) => {
             if (currentScreen === 2) {
-                text2.classList.remove('dragging'); // 恢复动画
+                text2.classList.remove('dragging'); 
                 
-                // 松手时，如果没有被完全推走，像橡皮筋一样弹回原位
+                // 没推到位就橡皮筋回弹
                 if (currentTranslateY > -(window.innerHeight / 2)) {
                     text2.style.transform = `scaleY(1) translateY(0px)`;
                     currentTranslateY = 0;
