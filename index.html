@@ -12,54 +12,52 @@
             font-weight: normal;
             font-style: normal;
         }
-    
+
         @font-face {
             font-family: 'DominoCustomC';
             src: url('DominoMono-BoldC.otf') format('opentype');
             font-weight: normal;
             font-style: normal;
         }
-    
+
+        /* 快捷应用不同字体的 class */
         .font-a { font-family: 'DominoCustomA', monospace; }
         .font-c { font-family: 'DominoCustomC', monospace; }
-    
-        /* 2. 定义全局颜色变量 */
+
+        /* 2. 定义全局颜色变量（方便第二屏瞬间切换） */
         :root {
             --color-bg: #FFFFFF;
             --color-grid: #F2F2F2;
             --color-text: #6AA3E6;
         }
-    
+
+        /* 当切换到界面2时，瞬间改变颜色变量 */
         body.theme-screen-2 {
             --color-grid: #DAECED;
             --color-text: #FEA28F;
         }
-    
+
         /* 3. 基础重置 */
-        * {
+        html, body {
             margin: 0;
             padding: 0;
+            width: 100%;
+            height: 100dvh; /* 核心修复：使用 dvh (动态视口高度) 完美适配手机浏览器 */
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            overflow: hidden; /* 防止出现任何滚动条 */
+            font-family: 'DominoCustomA', monospace;
             box-sizing: border-box;
             touch-action: none; 
             user-select: none;
+            -webkit-user-select: none; /* 禁用苹果手机长按选中 */
         }
-    
-        body {
-            width: 100vw;
-            /* 【关键修改 1】使用 dvh（动态视口高度），完美解决手机地址栏挤压问题 */
-            height: 100dvh; 
-            background-color: var(--color-bg);
-            color: var(--color-text);
-            overflow: hidden;
-            font-family: 'DominoCustomA', monospace;
-            /* 【关键修改 2】添加相对定位，作为绝对定位的严格基准 */
-            position: relative; 
-        }
-    
-        /* ================= 全局与底部信息栏 ================= */
+
+        /* ================= 全局层与底部信息栏 ================= */
         
+        /* 辅助网格层，置于最底层 */
         .grid-bg {
-            position: absolute;
+            position: fixed;
             top: -50%; left: -50%;
             width: 200%; height: 200%; 
             background-image: 
@@ -71,10 +69,10 @@
             z-index: 1;
             will-change: transform;
         }
-    
+
+        /* 底部状态栏，独立放置于界面之外，保证不干扰文字居中 */
         .footer {
-            /* 【关键修改 3】从 fixed 改为 absolute，防止它破坏 Flexbox 的居中计算 */
-            position: absolute; 
+            position: fixed;
             bottom: 30px;
             left: 30px;
             right: 30px;
@@ -85,29 +83,30 @@
             z-index: 10;
             pointer-events: none; 
         }
-    
+
         .footer .center {
             position: absolute;
             left: 50%;
             transform: translateX(-50%);
         }
-    
-        /* 界面容器 */
+
+        /* ================= 界面容器 (专门用于完美居中) ================= */
         .screen {
-            /* 【关键修改 4】不用 width/height，直接强行拉满四角，并强制为垂直列布局 */
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0; 
-            display: none;
-            flex-direction: column; 
-            align-items: center;
-            justify-content: center;
+            position: fixed; /* 核心修复：改为 fixed，完美覆盖整个屏幕 */
+            top: 0; left: 0;
+            width: 100vw; 
+            height: 100dvh; 
+            display: none; /* 默认隐藏 */
+            flex-direction: column; /* 核心修复：内部元素纵向排列 */
+            align-items: center; /* 左右居中 */
+            justify-content: center; /* 上下居中 */
             z-index: 2;
         }
-    
+
         .screen.active {
-            display: flex;
+            display: flex; /* 当带 active 时，变为 flex 布局 */
         }
-    
+
         /* ================= 界面 1 样式 ================= */
         
         #text-1 {
@@ -117,10 +116,8 @@
             text-align: center;
             will-change: transform;
             transform-origin: center center;
-            /* 【关键补偿】如果你发现它还是偏上，取消下面这行代码的注释，用 margin 把它“硬拽”下来 */
-            /* margin-top: 5vh; */ 
         }
-    
+
         /* ================= 界面 2 样式 ================= */
         
         #text-2 {
@@ -129,10 +126,8 @@
             text-align: center;
             will-change: transform;
             transform-origin: top center; 
-            /* 【关键补偿】同理，用于调节界面 2 的视觉中心 */
-            /* margin-top: 5vh; */ 
         }
-    
+
     </style>
 </head>
 <body>
@@ -143,16 +138,10 @@
     <!-- 界面 1 -->
     <div id="screen-1" class="screen active">
         <div id="text-1">
-            <!-- 逐字排版，混排 BoldA 和 BoldC -->
             <div class="font-a">T<span class="font-c">A</span>KE</div>
             <div class="font-c">A</div>
             <div class="font-a">CL<span class="font-c">O</span>SER</div>
             <div class="font-a">L<span class="font-c">O</span><span class="font-c">O</span>K</div>
-        </div>
-        <div class="footer">
-            <span>Test</span>
-            <span class="center">Project Name</span>
-            <span>01</span>
         </div>
     </div>
 
@@ -161,11 +150,13 @@
         <div id="text-2">
             <span class="font-a">G</span><span class="font-c">O</span> <span class="font-a">D</span><span class="font-c">O</span><span class="font-a">WN</span>
         </div>
-        <div class="footer">
-            <span>Test</span>
-            <span class="center">Project Name</span>
-            <span>02</span>
-        </div>
+    </div>
+
+    <!-- 全局底部信息栏 (统一由 JavaScript 更新序号) -->
+    <div class="footer">
+        <span>Test</span>
+        <span class="center">Project Name</span>
+        <span id="page-num">01</span>
     </div>
 
     <script>
@@ -177,11 +168,12 @@
         const screen2 = document.getElementById('screen-2');
         const grid = document.getElementById('grid');
         const text1 = document.getElementById('text-1');
+        const pageNum = document.getElementById('page-num'); // 引入页码元素
         
         let initialDistance = 0;
         let currentGridScale = 1;
         let currentTextScale = 1;
-        const TEXT_SUCCESS_THRESHOLD = 4.5; // 文字放大达到此倍数时切换
+        const TEXT_SUCCESS_THRESHOLD = 4.5; 
 
         function getDistance(touches) {
             const dx = touches[0].clientX - touches[1].clientX;
@@ -204,17 +196,14 @@
                 const delta = currentDist / initialDistance;
 
                 if (delta > 1) {
-                    // Pinch Out（放大手势）：文字不动，网格靠近
                     currentGridScale = delta;
                     grid.style.transform = `scale(${currentGridScale})`;
                     text1.style.transform = `scale(${currentTextScale})`;
                 } else if (delta < 1) {
-                    // Pinch In（缩小手势）：网格不动，文字变大
                     currentTextScale = Math.max(1, 1 / delta); 
                     text1.style.transform = `scale(${currentTextScale})`;
                     grid.style.transform = `scale(${currentGridScale})`;
 
-                    // 达到阈值，直接硬切触发界面切换
                     if (currentTextScale > TEXT_SUCCESS_THRESHOLD) {
                         transitionToScreen2();
                     }
@@ -228,27 +217,27 @@
             }
         });
 
-        // 瞬间切换界面逻辑
+        // === 界面瞬间切场逻辑 ===
         function transitionToScreen2() {
             currentScreen = 2; 
             
-            // 切换主题 class，瞬间更改全站网格和字体颜色
+            // 切换主题颜色
             document.body.classList.add('theme-screen-2');
             
-            // 移除界面 1，显示界面 2
+            // 切换页面显示
             screen1.classList.remove('active');
             screen2.classList.add('active');
 
-            // 可选：将网格恢复默认大小，让新的蓝色网格显得干净整齐
+            // 动态将底部的序号从 01 改为 02
+            pageNum.innerText = '02';
+
+            // 恢复网格大小
             grid.style.transform = `scale(1)`;
         }
-
 
         // === 界面 2：拉伸与推动刷新逻辑 ===
         const text2 = document.getElementById('text-2');
         let startY = 0;
-        
-        // 由于松手后不缩回，需要累加记录每一次形变的值
         let currentScaleY = 1;
         let lastScaleY = 1;
         let currentTranslateY = 0;
@@ -268,16 +257,15 @@
             const deltaY = currentY - startY;
 
             if (deltaY > 0) {
-                // 【向下滑动】：拉长字体，保留已有的位移
+                // 下拉拉长
                 currentScaleY = lastScaleY + (deltaY / 150); 
                 text2.style.transform = `translateY(${lastTranslateY}px) scaleY(${currentScaleY})`;
             } else {
-                // 【向上滑动】：将字体刷上去，保留已有的拉伸
+                // 上推位移
                 currentTranslateY = lastTranslateY + deltaY; 
                 text2.style.transform = `translateY(${currentTranslateY}px) scaleY(${lastScaleY})`;
 
-                // 当向上推行的距离超过半个屏幕高度时，刷新整个网页
-                if (Math.abs(currentTranslateY) > window.innerHeight) {
+                if (Math.abs(currentTranslateY) > window.innerHeight / 2) {
                     location.reload(); 
                 }
             }
@@ -285,7 +273,6 @@
 
         document.addEventListener('touchend', (e) => {
             if (currentScreen === 2) {
-                // 松手时，将当前的拉伸比例和位移保存下来，实现“不缩回去”的效果
                 if (currentScaleY !== lastScaleY) {
                     lastScaleY = currentScaleY;
                 }
