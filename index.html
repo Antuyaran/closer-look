@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Inquiry Demo - Reflexivity</title>
     <style>
-        /* 1. 引入两套不同的字体 */
+        /* 1. 字体定义 */
         @font-face {
             font-family: 'DominoCustomA';
             src: url('DominoMono-BoldA.otf') format('opentype');
@@ -20,42 +20,40 @@
             font-style: normal;
         }
 
-        /* 快捷应用不同字体的 class */
         .font-a { font-family: 'DominoCustomA', monospace; }
         .font-c { font-family: 'DominoCustomC', monospace; }
 
-        /* 2. 定义全局颜色变量（方便第二屏瞬间切换） */
+        /* 2. 全局颜色变量 */
         :root {
             --color-bg: #FFFFFF;
             --color-grid: #F2F2F2;
             --color-text: #6AA3E6;
+            --color-footer: #000000;
         }
 
-        /* 当切换到界面2时，瞬间改变颜色变量 */
         body.theme-screen-2 {
             --color-grid: #F2F2F2;
             --color-text: #FEA28F;
         }
 
-        /* 3. 基础重置 */
-        html, body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100dvh; /* 核心修复：使用 dvh (动态视口高度) 完美适配手机浏览器 */
-            background-color: var(--color-bg);
-            color: var(--color-text);
-            overflow: hidden; /* 防止出现任何滚动条 */
-            font-family: 'DominoCustomA', monospace;
-            box-sizing: border-box;
-            touch-action: none; 
-            user-select: none;
-            -webkit-user-select: none; /* 禁用苹果手机长按选中 */
+        body.theme-screen-3 {
+            --color-grid: #F2F2F2;
+            --color-text: #000000;
+            --color-footer: #898989; /* 界面3底部文字颜色 */
         }
 
-        /* ================= 全局层与底部信息栏 ================= */
-        
-        /* 辅助网格层，置于最底层 */
+        html, body {
+            margin: 0; padding: 0;
+            width: 100%; height: 100dvh;
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            overflow: hidden;
+            touch-action: none; 
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* 背景网格 */
         .grid-bg {
             position: fixed;
             top: -50%; left: -50%;
@@ -64,90 +62,76 @@
                 linear-gradient(to right, var(--color-grid) 1px, transparent 1px),
                 linear-gradient(to bottom, var(--color-grid) 1px, transparent 1px);
             background-size: 40px 40px;
-            background-position: center center;
-            transform-origin: center center;
             z-index: 1;
-            will-change: transform;
         }
 
-        /* 底部状态栏，独立放置于界面之外，保证不干扰文字居中 */
         .footer {
             position: fixed;
-            bottom: 30px;
-            left: 30px;
-            right: 30px;
-            display: flex;
-            justify-content: space-between;
-            font-family: 'PingFangSC-Semibold', 'PingFang SC', -apple-system, sans-serif;
+            bottom: 30px; left: 30px; right: 30px;
+            display: flex; justify-content: space-between;
+            font-family: 'PingFangSC-Semibold', sans-serif;
             font-size: 10px;
+            color: var(--color-footer);
             z-index: 10;
-            pointer-events: none; 
         }
 
-        .footer .center {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-        }
+        .footer .center { position: absolute; left: 50%; transform: translateX(-50%); }
 
-        /* ================= 界面容器 (专门用于完美居中) ================= */
         .screen {
-            position: fixed; /* 核心修复：改为 fixed，完美覆盖整个屏幕 */
+            position: fixed;
             top: 0; left: 0;
-            width: 100vw; 
-            height: 100dvh; 
-            display: none; /* 默认隐藏 */
-            flex-direction: column; /* 核心修复：内部元素纵向排列 */
-            align-items: center; /* 左右居中 */
-            justify-content: center; /* 上下居中 */
+            width: 100vw; height: 100dvh;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             z-index: 2;
         }
 
-        .screen.active {
-            display: flex; /* 当带 active 时，变为 flex 布局 */
-        }
+        .screen.active { display: flex; }
 
-        /* ================= 界面 1 样式 ================= */
-        
+        /* 界面 1 样式 */
         #text-1 {
             font-size: 2rem;
             line-height: 1.3;
             letter-spacing: 8px;
             text-align: center;
             will-change: transform;
-            transform-origin: center center;
         }
 
-       
-        
-       /* ================= 界面 2 样式 ================= */
-        
-       #text-2 {
+        /* 界面 2 样式 */
+        #text-2 {
             position: absolute;
-            bottom: 15dvh; /* 距离底部 15% 的视口高度，放置在下部 */
+            bottom: 10dvh; /* 初始位置偏下 */
             left: 50%;
-            transform: translateX(-50%); /* 确保绝对居中 */
+            transform: translateX(-50%);
             font-size: 3.5rem;
-            letter-spacing: 15px; 
+            letter-spacing: 15px;
             text-align: center;
             will-change: transform;
-            transform-origin: top center; /* 锚点在顶部，向下拉会向下延伸出屏幕 */
-            opacity: 0; /* 初始透明，用于过渡界面的淡入 */
-            transition: opacity 1s ease-out; 
-            pointer-events: none; /* 淡入前不接受触摸 */
+            transform-origin: bottom center; /* 向往拉时，底部固定，往上拉伸 */
+            opacity: 0;
+            transition: opacity 1s;
         }
 
-        #text-2.visible {
-            opacity: 1;
-            pointer-events: auto; /* 淡入后恢复触摸 */
+        /* 界面 3 样式 */
+        #text-3 {
+            font-size: 400px; /* 初始巨大 */
+            line-height: 400px;
+            letter-spacing: 20px;
+            text-align: center;
+            will-change: transform;
+            opacity: 0;
+            transition: opacity 1s;
+            white-space: nowrap;
         }
 
+        .visible { opacity: 1 !important; pointer-events: auto !important; }
     </style>
 </head>
 <body>
 
-    <!-- 全局背景网格 -->
-    <div class="grid-bg" id="grid"></div>
+    <div class="grid-bg"></div>
 
     <!-- 界面 1 -->
     <div id="screen-1" class="screen active">
@@ -162,11 +146,18 @@
     <!-- 界面 2 -->
     <div id="screen-2" class="screen">
         <div id="text-2">
-            <span class="font-a">G</span><span class="font-c">O</span> <span class="font-a">D</span><span class="font-c">O</span><span class="font-a">WN</span>
+            <span class="font-a">G</span><span class="font-c">O</span> 
+            <span class="font-c">U</span><span class="font-a">P</span>
         </div>
     </div>
 
-    <!-- 全局底部信息栏 (统一由 JavaScript 更新序号) -->
+    <!-- 界面 3 -->
+    <div id="screen-3" class="screen">
+        <div id="text-3" class="font-a">
+            Minimize<br>Me
+        </div>
+    </div>
+
     <div class="footer">
         <span>Test</span>
         <span class="center">Project Name</span>
@@ -174,156 +165,116 @@
     </div>
 
     <script>
-        // === 全局状态 ===
         let currentScreen = 1;
+        let isTransitioning = false;
 
-        // === 界面 1：双指缩放逻辑 ===
         const screen1 = document.getElementById('screen-1');
         const screen2 = document.getElementById('screen-2');
-        const grid = document.getElementById('grid');
+        const screen3 = document.getElementById('screen-3');
         const text1 = document.getElementById('text-1');
-        const text2 = document.getElementById('text-2'); // <--- 【加这一行】把 text2 抓取出来
-        const pageNum = document.getElementById('page-num'); 
-        
-        let initialDistance = 0;
-        let currentGridScale = 1;
-        let currentTextScale = 1;
-        
-        // 【新增】：添加记忆变量，记录上一次松手时的缩放比例
-        let lastGridScale = 1;
-        let lastTextScale = 1;
-        
-        const TEXT_SUCCESS_THRESHOLD = 4.5; 
+        const text2 = document.getElementById('text-2');
+        const text3 = document.getElementById('text-3');
+        const pageNum = document.getElementById('page-num');
 
+        // 通用距离计算
         function getDistance(touches) {
-            const dx = touches[0].clientX - touches[1].clientX;
-            const dy = touches[0].clientY - touches[1].clientY;
-            return Math.sqrt(dx * dx + dy * dy);
+            return Math.sqrt(Math.pow(touches[0].clientX - touches[1].clientX, 2) + Math.pow(touches[0].clientY - touches[1].clientY, 2));
         }
 
+        // --- 界面 1 逻辑 ---
+        let initialDist1 = 0;
+        let lastTextScale1 = 1;
+        let currentTextScale1 = 1;
+
         document.addEventListener('touchstart', (e) => {
-            if (currentScreen === 1 && e.touches.length === 2) {
-                initialDistance = getDistance(e.touches);
-            }
+            if (currentScreen === 1 && e.touches.length === 2) initialDist1 = getDistance(e.touches);
+            if (currentScreen === 2 && e.touches.length === 1) startY2 = e.touches[0].clientY;
+            if (currentScreen === 3 && e.touches.length === 2) initialDist3 = getDistance(e.touches);
         });
 
         document.addEventListener('touchmove', (e) => {
-            if (currentScreen !== 1) return;
+            if (isTransitioning) return;
             e.preventDefault();
 
-            if (e.touches.length === 2 && initialDistance > 0) {
-                const currentDist = getDistance(e.touches);
-                const delta = currentDist / initialDistance;
+            // 界面 1 交互
+            if (currentScreen === 1 && e.touches.length === 2) {
+                let dist = getDistance(e.touches);
+                let delta = dist / initialDist1;
+                if (delta < 1) { // 缩小手势 -> 文字放大
+                    currentTextScale1 = lastTextScale1 * (1 / delta);
+                    text1.style.transform = `scale(${currentTextScale1})`;
+                    if (currentTextScale1 > 5) transitionTo2();
+                }
+            }
 
-                if (delta > 1) {
-                    // 【修改】：在上次的网格比例基础上继续放大
-                    currentGridScale = lastGridScale * delta;
-                    grid.style.transform = `scale(${currentGridScale})`;
-                    // 文字保持当前的比例不变
-                    text1.style.transform = `scale(${currentTextScale})`;
-                } else if (delta < 1) {
-                    // 【修改】：在上次的文字比例基础上继续放大
-                    // delta 越小，1/delta 越大，将其乘以上次记录的比例
-                    currentTextScale = Math.max(1, lastTextScale * (1 / delta)); 
-                    text1.style.transform = `scale(${currentTextScale})`;
-                    grid.style.transform = `scale(${currentGridScale})`;
+            // 界面 2 交互 (往下拽 -> 往上升 + 拉伸)
+            if (currentScreen === 2 && e.touches.length === 1) {
+                let deltaY = e.touches[0].clientY - startY2;
+                if (deltaY > 0) { // 往下拽
+                    currentTranslateY2 = lastTranslateY2 - deltaY; // 坐标减小即往上升
+                    currentScaleY2 = lastScaleY2 + (deltaY / 100); // 向上拉伸
+                    text2.style.transform = `translateX(-50%) translateY(${currentTranslateY2}px) scaleY(${currentScaleY2})`;
+                    if (Math.abs(currentTranslateY2) > window.innerHeight * 0.8) transitionTo3();
+                }
+            }
 
-                    if (currentTextScale > TEXT_SUCCESS_THRESHOLD) {
-                        transitionToScreen2();
-                    }
+            // 界面 3 交互 (放大手势 -> 文字缩小)
+            if (currentScreen === 3 && e.touches.length === 2) {
+                let dist = getDistance(e.touches);
+                let delta = dist / initialDist3;
+                if (delta > 1) { // 放大手势
+                    currentScale3 = lastScale3 * (1 / delta);
+                    text3.style.transform = `scale(${currentScale3})`;
+                    if (currentScale3 < 0.05) location.reload(); // 缩小到极点刷新
                 }
             }
         }, { passive: false });
 
         document.addEventListener('touchend', (e) => {
-            if (currentScreen === 1 && e.touches.length < 2) {
-                initialDistance = 0; 
-                // 【新增】：当手指松开时，把当前的比例保存到记忆变量里
-                lastGridScale = currentGridScale;
-                lastTextScale = currentTextScale;
-            }
+            if (currentScreen === 1) { lastTextScale1 = currentTextScale1; initialDist1 = 0; }
+            if (currentScreen === 2) { lastTranslateY2 = currentTranslateY2; lastScaleY2 = currentScaleY2; }
+            if (currentScreen === 3) { lastScale3 = currentScale3; initialDist3 = 0; }
         });
 
-    // === 增加过渡锁 ===
-    let isTransitioning = false; 
+        // --- 过渡逻辑 ---
 
-// === 界面瞬间切场与过渡逻辑 ===
-function transitionToScreen2() {
-    if (isTransitioning) return; // 如果正在过渡，阻止重复触发
-    isTransitioning = true;
-    currentScreen = 1.5; // 进入 1.5 过渡态，屏蔽所有手势
-    
-    // 1. 文字1瞬间消失
-    text1.style.transition = "opacity 0.2s, transform 0.2s";
-    text1.style.opacity = 0;
-    text1.style.transform = `scale(${currentTextScale + 0.5})`; // 消失前稍微膨胀一下
-
-    // 2. 瞬间切换主题颜色和重置网格
-    document.body.classList.add('theme-screen-2');
-    grid.style.transform = `scale(1)`;
-    
-    // 3. 强制留白 1.5 秒后，进入第二屏
-    setTimeout(() => {
-        screen1.classList.remove('active');
-        screen2.classList.add('active');
-        pageNum.innerText = '02'; // 更新页码
-
-        // 稍微延迟一点点执行淡入，确保 DOM 已经渲染
-        setTimeout(() => {
-            text2.classList.add('visible'); // text-2 浮现
-            currentScreen = 2; // 正式进入第二屏，解锁手势
-            isTransitioning = false;
-        }, 100);
-
-    }, 1500); // 这里的 1500 就是 1.5秒的“空挡期”，你可以随意调整
-}
-
-// === 界面 2：拉伸与推动刷新逻辑 ===
-let startY = 0;
-let currentScaleY = 1;
-let lastScaleY = 1;
-let currentTranslateY = 0;
-let lastTranslateY = 0;
-
-document.addEventListener('touchstart', (e) => {
-    if (currentScreen === 2 && e.touches.length === 1) {
-        startY = e.touches[0].clientY;
-    }
-});
-
-document.addEventListener('touchmove', (e) => {
-    if (currentScreen !== 2 || e.touches.length !== 1) return;
-    e.preventDefault();
-
-    const currentY = e.touches[0].clientY;
-    const deltaY = currentY - startY;
-
-    if (deltaY > 0) {
-        // 【向下拉长】：文字顶部固定，底部向屏幕外疯狂拉长
-        currentScaleY = lastScaleY + (deltaY / 150); 
-        // 注意：因为使用了 absolute 定位，这里必须保留 translateX(-50%)
-        text2.style.transform = `translateX(-50%) translateY(${lastTranslateY}px) scaleY(${currentScaleY})`;
-    } else {
-        // 【向上推走】：连同拉伸的形变一起被推走
-        currentTranslateY = lastTranslateY + deltaY; 
-        text2.style.transform = `translateX(-50%) translateY(${currentTranslateY}px) scaleY(${lastScaleY})`;
-
-        if (Math.abs(currentTranslateY) > window.innerHeight / 1.5) {
-            location.reload(); 
+        function transitionTo2() {
+            if (isTransitioning) return;
+            isTransitioning = true;
+            text1.style.opacity = 0;
+            document.body.classList.add('theme-screen-2');
+            setTimeout(() => {
+                screen1.classList.remove('active');
+                screen2.classList.add('active');
+                pageNum.innerText = '02';
+                setTimeout(() => {
+                    text2.classList.add('visible');
+                    currentScreen = 2;
+                    isTransitioning = false;
+                }, 500);
+            }, 1000);
         }
-    }
-}, { passive: false });
 
-document.addEventListener('touchend', (e) => {
-    if (currentScreen === 2) {
-        if (currentScaleY !== lastScaleY) {
-            lastScaleY = currentScaleY;
+        let startY2 = 0, currentTranslateY2 = 0, lastTranslateY2 = 0, currentScaleY2 = 1, lastScaleY2 = 1;
+
+        function transitionTo3() {
+            if (isTransitioning) return;
+            isTransitioning = true;
+            text2.style.opacity = 0;
+            document.body.classList.add('theme-screen-3');
+            setTimeout(() => {
+                screen2.classList.remove('active');
+                screen3.classList.add('active');
+                pageNum.innerText = '03';
+                setTimeout(() => {
+                    text3.classList.add('visible');
+                    currentScreen = 3;
+                    isTransitioning = false;
+                }, 500);
+            }, 1000);
         }
-        if (currentTranslateY !== lastTranslateY) {
-            lastTranslateY = currentTranslateY;
-        }
-    }
-});
+
+        let initialDist3 = 0, lastScale3 = 1, currentScale3 = 1;
 
     </script>
 </body>
