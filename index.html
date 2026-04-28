@@ -182,6 +182,7 @@
         const screen2 = document.getElementById('screen-2');
         const grid = document.getElementById('grid');
         const text1 = document.getElementById('text-1');
+        const text2 = document.getElementById('text-2'); // <--- 【加这一行】把 text2 抓取出来
         const pageNum = document.getElementById('page-num'); 
         
         let initialDistance = 0;
@@ -243,8 +244,8 @@
             }
         });
 
-     // === 增加过渡锁 ===
-     let isTransitioning = false; 
+    // === 增加过渡锁 ===
+    let isTransitioning = false; 
 
 // === 界面瞬间切场与过渡逻辑 ===
 function transitionToScreen2() {
