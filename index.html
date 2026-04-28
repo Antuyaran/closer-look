@@ -12,31 +12,29 @@
             font-weight: normal;
             font-style: normal;
         }
-
+    
         @font-face {
             font-family: 'DominoCustomC';
             src: url('DominoMono-BoldC.otf') format('opentype');
             font-weight: normal;
             font-style: normal;
         }
-
-        /* 快捷应用不同字体的 class */
+    
         .font-a { font-family: 'DominoCustomA', monospace; }
         .font-c { font-family: 'DominoCustomC', monospace; }
-
-        /* 2. 定义全局颜色变量（方便第二屏瞬间切换） */
+    
+        /* 2. 定义全局颜色变量 */
         :root {
             --color-bg: #FFFFFF;
             --color-grid: #F2F2F2;
             --color-text: #6AA3E6;
         }
-
-        /* 当切换到界面2时，瞬间改变颜色变量 */
+    
         body.theme-screen-2 {
             --color-grid: #DAECED;
             --color-text: #FEA28F;
         }
-
+    
         /* 3. 基础重置 */
         * {
             margin: 0;
@@ -45,19 +43,21 @@
             touch-action: none; 
             user-select: none;
         }
-
+    
         body {
             width: 100vw;
-            height: 100vh;
+            /* 【关键修改 1】使用 dvh（动态视口高度），完美解决手机地址栏挤压问题 */
+            height: 100dvh; 
             background-color: var(--color-bg);
             color: var(--color-text);
             overflow: hidden;
-            font-family: 'DominoCustomA', monospace; /* 默认使用 BoldA */
+            font-family: 'DominoCustomA', monospace;
+            /* 【关键修改 2】添加相对定位，作为绝对定位的严格基准 */
+            position: relative; 
         }
-
+    
         /* ================= 全局与底部信息栏 ================= */
         
-        /* 辅助网格层，置于最底层 */
         .grid-bg {
             position: absolute;
             top: -50%; left: -50%;
@@ -71,9 +71,10 @@
             z-index: 1;
             will-change: transform;
         }
-
+    
         .footer {
-            position: fixed;
+            /* 【关键修改 3】从 fixed 改为 absolute，防止它破坏 Flexbox 的居中计算 */
+            position: absolute; 
             bottom: 30px;
             left: 30px;
             right: 30px;
@@ -82,30 +83,31 @@
             font-family: 'PingFangSC-Semibold', 'PingFang SC', -apple-system, sans-serif;
             font-size: 10px;
             z-index: 10;
-            pointer-events: none; /* 交互不影响此栏 */
+            pointer-events: none; 
         }
-
+    
         .footer .center {
             position: absolute;
             left: 50%;
             transform: translateX(-50%);
         }
-
-        /* 界面容器，硬切效果所以用 display 控制 */
+    
+        /* 界面容器 */
         .screen {
+            /* 【关键修改 4】不用 width/height，直接强行拉满四角，并强制为垂直列布局 */
             position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+            top: 0; left: 0; right: 0; bottom: 0; 
             display: none;
+            flex-direction: column; 
             align-items: center;
             justify-content: center;
             z-index: 2;
         }
-
+    
         .screen.active {
             display: flex;
         }
-
+    
         /* ================= 界面 1 样式 ================= */
         
         #text-1 {
@@ -115,8 +117,10 @@
             text-align: center;
             will-change: transform;
             transform-origin: center center;
+            /* 【关键补偿】如果你发现它还是偏上，取消下面这行代码的注释，用 margin 把它“硬拽”下来 */
+            /* margin-top: 5vh; */ 
         }
-
+    
         /* ================= 界面 2 样式 ================= */
         
         #text-2 {
@@ -124,9 +128,11 @@
             letter-spacing: 4px;
             text-align: center;
             will-change: transform;
-            transform-origin: top center; /* 拉长时基于顶部固定 */
+            transform-origin: top center; 
+            /* 【关键补偿】同理，用于调节界面 2 的视觉中心 */
+            /* margin-top: 5vh; */ 
         }
-
+    
     </style>
 </head>
 <body>
@@ -271,7 +277,7 @@
                 text2.style.transform = `translateY(${currentTranslateY}px) scaleY(${lastScaleY})`;
 
                 // 当向上推行的距离超过半个屏幕高度时，刷新整个网页
-                if (Math.abs(currentTranslateY) > window.innerHeight / 2) {
+                if (Math.abs(currentTranslateY) > window.innerHeight) {
                     location.reload(); 
                 }
             }
