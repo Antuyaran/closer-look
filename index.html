@@ -33,7 +33,7 @@
 
         /* 当切换到界面2时，瞬间改变颜色变量 */
         body.theme-screen-2 {
-            --color-grid: #DAECED;
+            --color-grid: #F2F2F2;
             --color-text: #FEA28F;
         }
 
@@ -110,9 +110,9 @@
         /* ================= 界面 1 样式 ================= */
         
         #text-1 {
-            font-size: 2.5rem;
+            font-size: 2rem;
             line-height: 1.3;
-            letter-spacing: 2px;
+            letter-spacing: 8px;
             text-align: center;
             will-change: transform;
             transform-origin: center center;
@@ -121,8 +121,8 @@
         /* ================= 界面 2 样式 ================= */
         
         #text-2 {
-            font-size: 3.5rem;
-            letter-spacing: 4px;
+            font-size: 4rem;
+            letter-spacing: 8px;
             text-align: center;
             will-change: transform;
             transform-origin: top center; 
@@ -168,11 +168,16 @@
         const screen2 = document.getElementById('screen-2');
         const grid = document.getElementById('grid');
         const text1 = document.getElementById('text-1');
-        const pageNum = document.getElementById('page-num'); // 引入页码元素
+        const pageNum = document.getElementById('page-num'); 
         
         let initialDistance = 0;
         let currentGridScale = 1;
         let currentTextScale = 1;
+        
+        // 【新增】：添加记忆变量，记录上一次松手时的缩放比例
+        let lastGridScale = 1;
+        let lastTextScale = 1;
+        
         const TEXT_SUCCESS_THRESHOLD = 4.5; 
 
         function getDistance(touches) {
@@ -196,11 +201,15 @@
                 const delta = currentDist / initialDistance;
 
                 if (delta > 1) {
-                    currentGridScale = delta;
+                    // 【修改】：在上次的网格比例基础上继续放大
+                    currentGridScale = lastGridScale * delta;
                     grid.style.transform = `scale(${currentGridScale})`;
+                    // 文字保持当前的比例不变
                     text1.style.transform = `scale(${currentTextScale})`;
                 } else if (delta < 1) {
-                    currentTextScale = Math.max(1, 1 / delta); 
+                    // 【修改】：在上次的文字比例基础上继续放大
+                    // delta 越小，1/delta 越大，将其乘以上次记录的比例
+                    currentTextScale = Math.max(1, lastTextScale * (1 / delta)); 
                     text1.style.transform = `scale(${currentTextScale})`;
                     grid.style.transform = `scale(${currentGridScale})`;
 
@@ -214,8 +223,13 @@
         document.addEventListener('touchend', (e) => {
             if (currentScreen === 1 && e.touches.length < 2) {
                 initialDistance = 0; 
+                // 【新增】：当手指松开时，把当前的比例保存到记忆变量里
+                lastGridScale = currentGridScale;
+                lastTextScale = currentTextScale;
             }
         });
+
+        // === 界面瞬间切场逻辑 === (后面的代码保持不变...)
 
         // === 界面瞬间切场逻辑 ===
         function transitionToScreen2() {
