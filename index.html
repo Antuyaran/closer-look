@@ -9,25 +9,19 @@
         @font-face {
             font-family: 'DominoCustomA';
             src: url('DominoMono-BoldA.otf') format('opentype');
-            font-weight: normal;
-            font-style: normal;
+            font-weight: normal; font-style: normal;
         }
-
         @font-face {
             font-family: 'DominoCustomC';
             src: url('DominoMono-BoldC.otf') format('opentype');
-            font-weight: normal;
-            font-style: normal;
+            font-weight: normal; font-style: normal;
         }
 
         .font-a { font-family: 'DominoCustomA', monospace; }
         .font-c { font-family: 'DominoCustomC', monospace; }
 
         /* 2. 颜色方案与全局样式 */
-        :root {
-            --color-text: #6AA3E6;
-        }
-
+        :root { --color-text: #6AA3E6; }
         body.theme-1 { --color-text: #6AA3E6; }
         body.theme-2 { --color-text: #FEA28F; }
         body.theme-3 { --color-text: #000000; }
@@ -41,79 +35,50 @@
             touch-action: none; 
             user-select: none;
             -webkit-user-select: none;
-            transition: color 0.3s ease; /* 切换时文字颜色平滑一点 */
+            transition: color 0.3s ease;
         }
 
-        /* 底部状态栏 */
         .footer {
             position: fixed;
             bottom: 30px; left: 30px; right: 30px;
-            display: flex;
-            justify-content: space-between;
+            display: flex; justify-content: space-between;
             font-family: 'PingFangSC-Semibold', sans-serif;
-            font-size: 10px;
-            z-index: 10;
+            font-size: 10px; z-index: 10;
             color: var(--color-text);
         }
+        .footer .center { position: absolute; left: 50%; transform: translateX(-50%); }
 
-        .footer .center {
-            position: absolute; left: 50%;
-            transform: translateX(-50%);
-        }
-
-        /* 界面容器 */
         .screen {
-            position: fixed;
-            top: 0; left: 0;
+            position: fixed; top: 0; left: 0;
             width: 100vw; height: 100dvh;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            display: none; flex-direction: column;
+            align-items: center; justify-content: center;
             z-index: 2;
         }
-
         .screen.active { display: flex; }
 
         /* ================= 界面样式 ================= */
-        
-        /* 界面 1 */
-        #text-1 {
-            font-size: 2.5rem;
-            line-height: 1.3;
-            letter-spacing: 8px;
-            text-align: center;
-            will-change: transform;
-        }
+        #text-1 { font-size: 2.5rem; line-height: 1.3; letter-spacing: 8px; text-align: center; will-change: transform; }
 
-        /* 界面 2 */
         #text-2 {
-            position: absolute;
-            bottom: 15dvh;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 3.5rem;
-            letter-spacing: 15px;
-            text-align: center;
-            transform-origin: bottom center; /* 向上拉伸 */
-            will-change: transform;
+            position: absolute; bottom: 15dvh; left: 50%;
+            transform: translateX(-50%); font-size: 3.5rem;
+            letter-spacing: 15px; text-align: center;
+            transform-origin: bottom center; will-change: transform;
         }
 
-        /* 界面 3 */
-        #text-3 {
-            font-size: 400px; /* 初始巨大化 */
-            line-height: 400px;
-            white-space: nowrap;
-            text-align: center;
+        /* 界面 3 矢量图：初始巨大化 */
+        #img-3 {
+            width: 100vw; height: 100dvh;
+            object-fit: cover;
             will-change: transform;
             transform-origin: center center;
+            transform: scale(10); /* 初始显示 10 倍 */
         }
-
     </style>
 </head>
 <body class="theme-1">
 
-    <!-- 界面 1 -->
     <div id="screen-1" class="screen active">
         <div id="text-1">
             <div class="font-a">T<span class="font-c">A</span>KE</div>
@@ -123,7 +88,6 @@
         </div>
     </div>
 
-    <!-- 界面 2 -->
     <div id="screen-2" class="screen">
         <div id="text-2">
             <span class="font-a">G</span><span class="font-c">O</span> 
@@ -131,15 +95,10 @@
         </div>
     </div>
 
-    <!-- 界面 3 -->
     <div id="screen-3" class="screen">
-        <div id="text-3">
-            <div class="font-a">MINIMIZE</div>
-            <div class="font-a">ME</div>
-        </div>
+        <img id="img-3" src="01.svg" alt="Vector Art">
     </div>
 
-    <!-- 底部信息栏 -->
     <div class="footer">
         <span>Test</span>
         <span class="center">Project Name</span>
@@ -154,11 +113,11 @@
         // 元素抓取
         const s1 = document.getElementById('screen-1'), t1 = document.getElementById('text-1');
         const s2 = document.getElementById('screen-2'), t2 = document.getElementById('text-2');
-        const s3 = document.getElementById('screen-3'), t3 = document.getElementById('text-3');
+        const s3 = document.getElementById('screen-3'), img3 = document.getElementById('img-3');
 
-        // 缩放逻辑通用变量
+        // 缩放逻辑变量
         let initialDist = 0;
-        let lastScale = 1;
+        let lastScale = 1; 
         let currentScale = 1;
 
         // 界面2逻辑变量
@@ -167,8 +126,6 @@
         function getDist(ts) {
             return Math.sqrt(Math.pow(ts[0].clientX - ts[1].clientX, 2) + Math.pow(ts[0].clientY - ts[1].clientY, 2));
         }
-
-        // ================= 事件监听 =================
 
         document.addEventListener('touchstart', (e) => {
             if (e.touches.length === 2) {
@@ -186,35 +143,30 @@
                 const dist = getDist(e.touches);
                 const delta = dist / initialDist;
                 
-                // 缩小手势(delta < 1) -> 变大
-                // 放大手势(delta > 1) -> 变小
+                // 核心：反转习惯（捏合=变大，张开=变小）
                 currentScale = Math.max(0.01, lastScale * (1 / delta));
                 
-                const targetText = currentScreen === 1 ? t1 : t3;
-                targetText.style.transform = `scale(${currentScale})`;
-
-                // 界面 1 跳转
-                if (currentScreen === 1 && currentScale > 4.5) transitionTo(2);
-                // 界面 3 缩小到极致触发（可选）
-                if (currentScreen === 3 && currentScale < 0.05) {
-                    setTimeout(() => location.reload(), 1000);
+                if (currentScreen === 1) {
+                    t1.style.transform = `scale(${currentScale})`;
+                    if (currentScale > 4.5) transitionTo(2);
+                } else {
+                    img3.style.transform = `scale(${currentScale})`;
+                    // 界面 3 缩小到一定程度（比如看到全貌）后刷新
+                    if (currentScale < 0.6) {
+                        setTimeout(() => location.reload(), 1500);
+                    }
                 }
             }
 
             // --- 界面 2: 反向滑动与拉伸 ---
             if (currentScreen === 2 && e.touches.length === 1) {
                 const deltaY = e.touches[0].clientY - startY;
-
                 if (deltaY < 0) { 
-                    // 向上滑动 -> 向上拉伸变形
                     currentSY = lastSY + (Math.abs(deltaY) / 100);
                     t2.style.transform = `translateX(-50%) translateY(${lastTY}px) scaleY(${currentSY})`;
                 } else {
-                    // 向下滑动 -> 文字反而上升
-                    currentTY = lastTY - (deltaY * 1.5); // 加速上升
+                    currentTY = lastTY - (deltaY * 1.5);
                     t2.style.transform = `translateX(-50%) translateY(${currentTY}px) scaleY(${lastSY})`;
-
-                    // 完全移出顶部跳转到界面3
                     if (currentTY < -window.innerHeight) transitionTo(3);
                 }
             }
@@ -226,36 +178,30 @@
                 initialDist = 0;
             }
             if (currentScreen === 2) {
-                lastTY = currentTY;
-                lastSY = currentSY;
+                lastTY = currentTY; lastSY = currentSY;
             }
         });
-
-        // ================= 切换逻辑 =================
 
         function transitionTo(screenIdx) {
             if (currentScreen === screenIdx) return;
             
-            // 界面 1 -> 2 的过渡停顿
             if (screenIdx === 2) {
                 currentScreen = 1.5;
                 t1.style.opacity = '0';
                 setTimeout(() => {
-                    s1.classList.remove('active');
-                    s2.classList.add('active');
-                    body.className = 'theme-2';
-                    pageNum.innerText = '02';
+                    s1.classList.remove('active'); s2.classList.add('active');
+                    body.className = 'theme-2'; pageNum.innerText = '02';
                     currentScreen = 2;
                 }, 1000);
             } 
-            // 2 -> 3
             else if (screenIdx === 3) {
                 currentScreen = 2.5;
-                s2.classList.remove('active');
-                s3.classList.add('active');
-                body.className = 'theme-3';
-                pageNum.innerText = '03';
-                lastScale = 1; // 重置缩放基准
+                s2.classList.remove('active'); s3.classList.add('active');
+                body.className = 'theme-3'; pageNum.innerText = '03';
+                
+                // 【核心修改】：界面 3 缩放基准设为 10，匹配 CSS
+                lastScale = 10; 
+                currentScale = 10;
                 currentScreen = 3;
             }
         }
